@@ -1,0 +1,111 @@
+import { useCallback, useRef, useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
+/**
+ * Manages filters, pagination and sorting for the users table via URL search params.
+ */
+export function useUserTableFilters(pagination) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
+  // Local state for the input value — prevents losing focus on every keystroke
+  const [localSearchTerm, setLocalSearchTerm] = useState(
+    searchParams.get("q") || ""
+  );
+
+  const status = searchParams.get("status") || "all";
+  const currentPage = pagination?.page || Number(searchParams.get("page") || 1);
+  const totalPages = pagination?.totalPages || 1;
+  const totalCount = pagination?.totalCount || 0;
+  const sortKey = searchParams.get("sortKey") || "";
+  const sortDirection = searchParams.get("sortDirection") || "asc";
+
+  const navigateWithParams = useCallback(
+    (next) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(next).forEach(([k, v]) => {
+        if (v === undefined || v === null || v === "" || v === "all") params.delete(k);
+        else params.set(k, String(v));
+      });
+      startTransition(() => {
+        router.push(`?${params.toString()}`, { scroll: false });
+      });
+    },
+    [router, searchParams, startTransition]
+  );
+
+  const handleSortChange = useCallback(
+    (key, direction) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (key) params.set("sortKey", key);
+      else params.delete("sortKey");
+      if (direction) params.set("sortDirection", direction);
+      else params.delete("sortDirection");
+      startTransition(() => {
+        router.push(`?${params.toString()}`, { scroll: false });
+      });
+    },
+    [searchParams, startTransition, router]
+  );
+
+  const searchDebounceRef = useRef(null);
+
+  const handleSearchChange = useCallback(
+    (value) => {
+      // Update input immediately (no lag, no focus loss)
+      setLocalSearchTerm(value);
+      // Debounce the URL/server update
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+      searchDebounceRef.current = setTimeout(() => {
+        navigateWithParams({ q: value, page: 1 });
+      }, 400);
+    },
+    [navigateWithParams]
+  );
+
+  const handleStatusChange = useCallback(
+    (value) => {
+      navigateWithParams({ status: value, page: 1 });
+    },
+    [navigateWithParams]
+  );
+
+  const handlePageChange = useCallback(
+    (nextPage) => {
+      navigateWithParams({ page: nextPage });
+    },
+    [navigateWithParams]
+  );
+
+  const handleReset = useCallback(() => {
+    setLocalSearchTerm("");
+    startTransition(() => {
+      router.push("?", { scroll: false });
+    });
+  }, [router, startTransition]);
+
+  return {
+    isPending,
+    filters: {
+      searchTerm: localSearchTerm,
+      status,
+    },
+    paginationState: {
+      currentPage,
+      totalPages,
+      totalCount,
+    },
+    sortConfig: {
+      key: sortKey || null,
+      direction: sortDirection === "desc" ? "desc" : "asc",
+    },
+    handlers: {
+      handleSearchChange,
+      handleStatusChange,
+      handlePageChange,
+      handleSortChange,
+      handleReset,
+    },
+  };
+}
