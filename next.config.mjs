@@ -24,7 +24,8 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'",
+              // Agrega 'unsafe-eval' solo si NO es producción
+              `script-src 'self' 'unsafe-inline' ${!isProduction ? "'unsafe-eval'" : ''}`,
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
               "font-src 'self' data:",
