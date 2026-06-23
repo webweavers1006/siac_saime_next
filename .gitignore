@@ -38,6 +38,12 @@ yarn-error.log*
 
 
 # vercel
+
+# geo data (large files)
+prisma/geo-data/
+
+# uploaded files
+storage/
 .vercel
 
 # typescript

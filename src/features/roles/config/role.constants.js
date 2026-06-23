@@ -9,6 +9,7 @@ export const ROLE_CONFIG = {
 
   // Permisos requeridos
   PERMISSIONS: {
+    VIEW: 'roles:view',
     READ: 'roles:read',
     READ_ALL: 'roles:read_all',
     // Permiso para crear roles (coincide con slugs de DB)

@@ -4,7 +4,7 @@ import {
   updateUser as updateRepo, 
   deleteUser as deleteRepo 
 } from "../repositories/user.write.repository";
-import { getRoleByName } from "@/features/roles/repositories/role.read.repository";
+import { fetchRoleByName } from "@/features/roles/services/role.read.service";
 import { validateUserUniqueness } from "./user.validation.service";
 import { USER_CONFIG } from "../config/user.constants";
 import { logger } from "@/features/shared";
@@ -26,7 +26,7 @@ export async function createUser(data) {
     // Resolve default role if not specified
     let roleId = data.roleId;
     if (!roleId) {
-      const rolEmpleado = await getRoleByName(DEFAULT_ROLE_NAME);
+      const rolEmpleado = await fetchRoleByName(DEFAULT_ROLE_NAME);
       roleId = rolEmpleado?.id;
     }
 

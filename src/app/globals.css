@@ -164,7 +164,7 @@
 
   /* ─── DataTable Theme Styles ─── */
   .data-table-header {
-    @apply sticky top-0 z-10 bg-muted;
+    @apply sticky top-0 z-[5] bg-muted;
   }
 
   .data-table-row {

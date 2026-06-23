@@ -21,6 +21,29 @@ model User {
 
   roleId    Int?      @map("rol_id")
   role      Role?     @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  caseAreaId             Int?      @map("area_caso_id")
+  caseArea               CaseArea? @relation(fields: [caseAreaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  administrativeDirectionId  Int?                      @map("direccion_administrativa_id")
+  administrativeDirection    AdministrativeDirection?  @relation(fields: [administrativeDirectionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  attentionChannelId        Int?                     @map("canal_atencion_id")
+  attentionChannel          AttentionChannel?        @relation(fields: [attentionChannelId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  officeId                  Int?                     @map("oficina_id")
+  office                    Office?                  @relation(fields: [officeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  cases               Case[]
+  tickets             Ticket[]
+  caseCoordinates     CaseCoordinate[]
+  caseForwards        CaseForward[]
+  caseFollowUps       CaseFollowUp[]
+  receivedNotifications   Notification[]     @relation("NotificationRecipient")
+  triggeredNotifications  Notification[]     @relation("NotificationActor")
+  authoredCaseNotifications Notification[]  @relation("NotificationCaseAuthor")
+  auditLogs           AuditLog[]
+  sentEmails          SentEmail[]
   createdAt DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
   updatedAt DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
   deletedAt DateTime? @map("eliminado_en") @db.Timestamptz(6)
@@ -34,6 +57,7 @@ model Role {
   description     String?          @map("descripcion")
   users           User[]
   rolePermissions RolePermission[]
+  notifications   Notification[]
   createdAt       DateTime?        @default(now()) @map("creado_en") @db.Timestamptz(6)
   updatedAt       DateTime?        @updatedAt @map("actualizado_en") @db.Timestamptz(6)
   deletedAt       DateTime?        @map("eliminado_en") @db.Timestamptz(6)
@@ -64,4 +88,633 @@ model RolePermission {
 
   @@id([roleId, permissionId])
   @@map("roles_permisos")
+}
+
+// -----------------------------------------------------------------------------
+// CATÁLOGOS BASE — Fase 1
+// -----------------------------------------------------------------------------
+
+model Country {
+  id        Int       @id @default(autoincrement())
+  name      String    @map("nombre") @db.VarChar(48)
+  states    State[]
+  persons   Person[]
+  createdAt DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("paises")
+}
+
+model CaseStatus {
+  id        Int       @id @default(autoincrement())
+  name      String    @map("nombre") @db.VarChar(48)
+  cases     Case[]
+  createdAt DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("estatus_caso")
+}
+
+model CallStatus {
+  id            Int             @id @default(autoincrement())
+  name          String          @map("nombre") @db.VarChar(48)
+  caseFollowUps CaseFollowUp[]
+  createdAt     DateTime?       @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt     DateTime?       @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt     DateTime?       @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("estatus_llamada")
+}
+
+model AttentionChannel {
+  id        Int       @id @default(autoincrement())
+  name      String    @map("nombre") @db.VarChar(48)
+  cases     Case[]
+  users     User[]
+  createdAt DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("canales_atencion")
+}
+
+model AttachedEntity {
+  id        Int       @id @default(autoincrement())
+  name      String    @map("nombre") @db.Text
+  cases     Case[]
+  createdAt DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("entes_adscritos")
+}
+
+model PopularOrganization {
+  id                Int                @id @default(autoincrement())
+  name              String             @map("nombre") @db.Text
+  cases             Case[]
+  caseParticipants  CaseParticipant[]
+  createdAt         DateTime?          @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("org_poder_popular")
+}
+
+model BeneficiaryType {
+  id             Int       @id @default(autoincrement())
+  name           String    @map("nombre") @db.Text
+  requiresIdCard Boolean   @default(true) @map("requiere_cedula")
+  persons        Person[]
+  createdAt      DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt      DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("tipos_beneficiario")
+}
+
+model CaseArea {
+  id        Int       @id @default(autoincrement())
+  name      String    @map("nombre") @db.VarChar(48)
+  reasons   Reason[]
+  cases     Case[]
+  defaultForDirections AdministrativeDirection[] @relation("DirectionDefaultArea")
+  directionAreas       DirectionArea[]
+  users     User[]
+  createdAt DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("areas_caso")
+}
+
+model DirectionArea {
+  directionId Int
+  areaId      Int
+  direction   AdministrativeDirection @relation(fields: [directionId], references: [id], onDelete: Cascade)
+  area        CaseArea               @relation(fields: [areaId], references: [id], onDelete: Cascade)
+
+  @@id([directionId, areaId])
+  @@map("direccion_area")
+}
+
+model Reason {
+  id         Int       @id @default(autoincrement())
+  caseAreaId Int       @map("area_caso_id")
+  caseArea   CaseArea  @relation(fields: [caseAreaId], references: [id])
+  name       String    @map("nombre") @db.Text
+  cases      Case[]
+  createdAt  DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt  DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt  DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("motivos")
+}
+
+model AttentionType {
+  id                    Int                     @id @default(autoincrement())
+  name                  String                  @map("nombre") @db.Text
+  showCaseArea          Boolean                 @default(false) @map("mostrar_area_caso")
+  showParticipants      Boolean                 @default(false) @map("mostrar_participantes")
+  sendEmail             Boolean                 @default(false) @map("enviar_correo")
+  showPopularOrg        Boolean                 @default(false) @map("mostrar_org_popular")
+  showCoordinates       Boolean                 @default(false) @map("mostrar_coordenadas")
+  showDocuments         Boolean                 @default(false) @map("mostrar_documentos")
+  showPuntoCuenta       Boolean                 @default(false) @map("mostrar_punto_cuenta")
+  hasComplaint          Boolean                 @default(false) @map("tiene_denuncia")
+  hasAttentionDetail    Boolean                 @default(false) @map("tiene_detalle_atencion")
+  details               AttentionTypeDetail[]
+  cases                 Case[]
+  tickets               Ticket[]
+  ticketCounters        TicketCounter[]
+  createdAt             DateTime?               @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt             DateTime?               @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt             DateTime?               @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("tipos_atencion")
+}
+
+model AttentionTypeDetail {
+  id              Int           @id @default(autoincrement())
+  attentionTypeId Int           @map("tipo_atencion_id")
+  attentionType   AttentionType @relation(fields: [attentionTypeId], references: [id])
+  name            String        @map("nombre") @db.Text
+  cases           Case[]
+  createdAt       DateTime?     @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt       DateTime?     @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt       DateTime?     @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("tipos_atencion_detalle")
+}
+
+model AdministrativeDirection {
+  id            Int             @id @default(autoincrement())
+  name          String          @map("nombre") @db.Text
+  email         String?         @map("correo") @db.Text
+  isAudit              Boolean            @default(false) @map("es_auditoria")
+  caseAreaId            Int?               @map("area_caso_defecto_id")
+  defaultCaseArea       CaseArea?          @relation("DirectionDefaultArea", fields: [caseAreaId], references: [id])
+  directionAreas        DirectionArea[]
+  caseForwards         CaseForward[]
+  caseFollowUps        CaseFollowUp[]
+  originNotifications  Notification[]
+  users                User[]
+  createdAt            DateTime?          @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("direcciones_administrativas")
+}
+
+model Office {
+  id               Int       @id @default(autoincrement())
+  name             String    @map("nombre") @db.VarChar(255)
+  code             String?   @unique @map("codigo") @db.VarChar(10)
+  address          String?   @map("direccion") @db.VarChar(500)
+  stateId          Int?      @map("estado_id")
+  state            State?    @relation(fields: [stateId], references: [id])
+  chiefName        String?   @map("nombre_jefe") @db.VarChar(255)
+  chiefIdCard      String?   @map("cedula_jefe") @db.VarChar(20)
+  chiefPhone       String?   @map("telefono_jefe") @db.VarChar(100)
+  chiefEmail       String?   @map("email_jefe") @db.VarChar(255)
+  hasEmailChange   Boolean   @default(false) @map("cambio_correo")
+  hasForeignAffairs Boolean  @default(false) @map("extranjeria")
+  hasMigration     Boolean   @default(false) @map("migracion")
+  enableQrTicket   Boolean   @default(false) @map("permite_qr_turno")
+  observation      String?   @map("observacion") @db.VarChar(500)
+  isActive         Boolean   @default(true) @map("activo")
+  lastUpdatedAt    DateTime? @map("ultima_actualizacion") @db.Timestamptz(6)
+  cases            Case[]
+  users            User[]
+  tickets          Ticket[]
+  ticketCounters   TicketCounter[]
+  createdAt        DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt        DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt        DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("oficinas")
+}
+
+// -----------------------------------------------------------------------------
+// GEOGRAFÍA — Fase 2
+// -----------------------------------------------------------------------------
+
+model State {
+  id             Int            @id @default(autoincrement())
+  name           String         @map("nombre") @db.VarChar(48)
+  pcode          String?        @unique @map("codigo_ine") @db.VarChar(4)
+  countryId      Int            @map("pais_id")
+  country        Country        @relation(fields: [countryId], references: [id])
+  municipalities Municipality[]
+  persons        Person[]
+  offices        Office[]
+  createdAt      DateTime?      @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt      DateTime?      @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt      DateTime?      @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("estados")
+}
+
+model Municipality {
+  id        Int       @id @default(autoincrement())
+  name      String    @map("nombre") @db.VarChar(48)
+  pcode     String?   @unique @map("codigo_ine") @db.VarChar(6)
+  stateId   Int       @map("estado_id")
+  state     State     @relation(fields: [stateId], references: [id])
+  parishes  Parish[]
+  persons   Person[]
+  createdAt DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("municipios")
+}
+
+model Parish {
+  id             Int          @id @default(autoincrement())
+  name           String       @map("nombre") @db.VarChar(48)
+  pcode          String?      @unique @map("codigo_ine") @db.VarChar(8)
+  geoData        Json?        @map("datos_geo")
+  municipalityId Int          @map("municipio_id")
+  municipality   Municipality @relation(fields: [municipalityId], references: [id])
+  persons        Person[]
+  createdAt      DateTime?    @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt      DateTime?    @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt      DateTime?    @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("parroquias")
+}
+
+// -----------------------------------------------------------------------------
+// PERSONAS — Fase 3 (unifica participantes + terceros + datos personales de casos)
+// -----------------------------------------------------------------------------
+
+model Person {
+  id               Int              @id @default(autoincrement())
+  firstName        String           @map("nombre") @db.VarChar(255)
+  lastName         String?          @map("apellido") @db.VarChar(255)
+  idCard           String?          @map("cedula") @db.VarChar(20)
+  phone            String?          @map("telefono") @db.VarChar(20)
+  email            String?          @map("correo") @db.Text
+  address          String?          @map("direccion") @db.Text
+  nationality      String?          @map("nacionalidad") @db.Char(1)
+  sex              String?          @map("sexo") @db.Char(1)
+  age              Int?             @map("edad")
+  birthDate        DateTime?        @map("fecha_nacimiento") @db.Date
+  profession       String?          @map("profesion") @db.Text
+  personType       String?          @map("tipo_persona") @db.VarChar(20)
+  legalInfo        String?          @map("info_legal") @db.Text
+
+  countryId        Int?             @map("pais_id")
+  country          Country?         @relation(fields: [countryId], references: [id])
+  stateId          Int?             @map("estado_id")
+  state            State?           @relation(fields: [stateId], references: [id])
+  municipalityId   Int?             @map("municipio_id")
+  municipality     Municipality?    @relation(fields: [municipalityId], references: [id])
+  parishId         Int?             @map("parroquia_id")
+  parish           Parish?          @relation(fields: [parishId], references: [id])
+  beneficiaryTypeId Int?            @map("tipo_beneficiario_id")
+  beneficiaryType  BeneficiaryType? @relation(fields: [beneficiaryTypeId], references: [id])
+  cases            Case[]
+  tickets          Ticket[]
+
+  mediationApplicantSupport       Mediation[]        @relation("MediationApplicantSupport")
+  mediationCounterparty           Mediation[]        @relation("MediationCounterparty")
+  mediationCounterpartySupport    Mediation[]        @relation("MediationCounterpartySupport")
+  caseParticipants                CaseParticipant[]
+
+  createdAt        DateTime?        @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt        DateTime?        @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt        DateTime?        @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("personas")
+}
+
+// -----------------------------------------------------------------------------
+// CASOS — Fase 4 (entidad central, normalizada desde sgc_casos)
+// -----------------------------------------------------------------------------
+
+model Case {
+  id                      Int                     @id @default(autoincrement()) @map("id_caso")
+  requestNumber           String?                 @map("numero_solicitud") @db.VarChar(48)
+  description             String?                 @map("descripcion") @db.Text
+  caseDate                DateTime?               @map("fecha_caso") @db.Date
+  caseTime                String?                 @map("hora_caso") @db.VarChar(20)
+
+  personId                Int?                    @map("persona_id")
+  person                  Person?                 @relation(fields: [personId], references: [id])
+
+  userId                  String?                 @map("usuario_id") @db.Uuid
+  user                    User?                   @relation(fields: [userId], references: [id])
+
+  caseStatusId            Int?                    @map("estatus_caso_id")
+  caseStatus              CaseStatus?             @relation(fields: [caseStatusId], references: [id])
+
+  caseAreaId              Int?                    @map("area_caso_id")
+  caseArea                CaseArea?               @relation(fields: [caseAreaId], references: [id])
+
+  reasonId                Int?                    @map("motivo_id")
+  reason                  Reason?                 @relation(fields: [reasonId], references: [id])
+
+  attentionTypeId         Int?                    @map("tipo_atencion_id")
+  attentionType           AttentionType?          @relation(fields: [attentionTypeId], references: [id])
+
+  attentionTypeDetailId   Int?                    @map("tipo_atencion_detalle_id")
+  attentionTypeDetail     AttentionTypeDetail?    @relation(fields: [attentionTypeDetailId], references: [id])
+  attentionChannelId      Int?                    @map("canal_atencion_id")
+  attentionChannel        AttentionChannel?       @relation(fields: [attentionChannelId], references: [id])
+
+  attachedEntityId        Int?                    @map("ente_adscrito_id")
+  attachedEntity          AttachedEntity?         @relation(fields: [attachedEntityId], references: [id])
+
+  popularOrganizationId   Int?                    @map("org_popular_id")
+  popularOrganization     PopularOrganization?    @relation(fields: [popularOrganizationId], references: [id])
+
+  officeId                Int?                    @map("oficina_id")
+  office                  Office?                 @relation(fields: [officeId], references: [id])
+  caseComplaints        CaseComplaint[]
+  caseCoordinates       CaseCoordinate[]
+  caseForwards          CaseForward[]
+  caseDocuments         CaseDocument[]
+  caseFollowUps         CaseFollowUp[]
+  mediations            Mediation[]
+  caseParticipants      CaseParticipant[]
+  cgrRecords            CgrRecord[]
+  notifications         Notification[]
+
+  sentEmails            SentEmail[]
+
+  ticket                Ticket?
+
+  createdAt               DateTime?               @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt               DateTime?               @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt               DateTime?               @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("casos")
+}
+
+// -----------------------------------------------------------------------------
+// ENTIDADES HIJAS DE CASO — Fase 5
+// -----------------------------------------------------------------------------
+
+model CaseComplaint {
+  id                Int       @id @default(autoincrement())
+  caseId            Int?      @map("caso_id")
+  case              Case?     @relation(fields: [caseId], references: [id])
+  affectsPerson     Boolean   @default(false) @map("afecta_persona")
+  affectsCommunity  Boolean   @default(false) @map("afecta_comunidad")
+  affectsThirdParties Boolean @default(false) @map("afecta_terceros")
+  involvedParties   String?   @map("involucrados") @db.Text
+  incidentDate      DateTime? @map("fecha_hechos") @db.Date
+  popularInstance   String?   @map("instancia_popular") @db.Text
+  instanceRif       String?   @map("rif_instancia") @db.Text
+  financingEntity   String?   @map("ente_financiador") @db.Text
+  projectName       String?   @map("nombre_proyecto") @db.Text
+  approvedAmount    String?   @map("monto_aprobado") @db.Text
+  createdAt         DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt         DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt         DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("denuncias_caso")
+}
+
+model CaseCoordinate {
+  id        Int       @id @default(autoincrement())
+  caseId    Int?      @map("caso_id")
+  case      Case?     @relation(fields: [caseId], references: [id])
+  userId    String?   @map("usuario_id") @db.Uuid
+  user      User?     @relation(fields: [userId], references: [id])
+  name      String?   @map("nombre") @db.VarChar(255)
+  latitude  Float?    @map("latitud")
+  longitude Float?    @map("longitud")
+  createdAt DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("coordenadas_caso")
+}
+
+model CaseForward {
+  id                        Int                     @id @default(autoincrement())
+  caseId                    Int?                    @map("caso_id")
+  case                      Case?                   @relation(fields: [caseId], references: [id])
+  administrativeDirectionId Int?                    @map("direccion_administrativa_id")
+  administrativeDirection   AdministrativeDirection? @relation(fields: [administrativeDirectionId], references: [id])
+  userId                    String?                 @map("usuario_id") @db.Uuid
+  user                      User?                   @relation(fields: [userId], references: [id])
+  isActive                  Boolean                 @default(true) @map("vigencia")
+  date                      DateTime?               @map("fecha") @db.Date
+  description               String?                 @map("descripcion") @db.VarChar(512)
+  createdAt                 DateTime?               @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt                 DateTime?               @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt                 DateTime?               @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("remisiones_caso")
+}
+
+model CaseDocument {
+  id           Int       @id @default(autoincrement())
+  caseId       Int?      @map("caso_id")
+  case         Case?     @relation(fields: [caseId], references: [id])
+  filePath     String    @map("ruta_archivo") @db.Text
+  description  String?   @map("descripcion") @db.Text
+  originalName String?   @map("nombre_original") @db.VarChar(255)
+  fileSize     BigInt?   @map("tamano_archivo")
+  mimeType     String?   @map("tipo_mime") @db.VarChar(100)
+  extension    String?   @map("extension") @db.VarChar(10)
+  createdAt    DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt    DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt    DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("documentos_caso")
+}
+
+model CaseFollowUp {
+  id           Int        @id @default(autoincrement())
+  caseId       Int?       @map("caso_id")
+  case         Case?      @relation(fields: [caseId], references: [id])
+  callStatusId Int?       @map("estatus_llamada_id")
+  callStatus   CallStatus? @relation(fields: [callStatusId], references: [id])
+  comment      String?    @map("comentario") @db.VarChar(512)
+  date         DateTime?  @map("fecha") @db.Date
+  time         String?    @map("hora") @db.VarChar(5)
+  userId       String?    @map("usuario_id") @db.Uuid
+  user         User?      @relation(fields: [userId], references: [id])
+  currentDirectionId      Int?                     @map("direccion_actual_id")
+  currentDirection        AdministrativeDirection? @relation(fields: [currentDirectionId], references: [id])
+  createdAt    DateTime?  @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt    DateTime?  @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt    DateTime?  @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("seguimientos_caso")
+}
+
+model Mediation {
+  id                    Int      @id @default(autoincrement())
+  caseId                Int?     @map("caso_id")
+  case                  Case?    @relation(fields: [caseId], references: [id])
+  applicantSupportId    Int?     @map("apoyo_solicitante_id")
+  applicantSupport      Person?  @relation("MediationApplicantSupport", fields: [applicantSupportId], references: [id])
+  counterpartyId        Int?     @map("contraparte_id")
+  counterparty          Person?  @relation("MediationCounterparty", fields: [counterpartyId], references: [id])
+  counterpartySupportId Int?     @map("apoyo_contraparte_id")
+  counterpartySupport   Person?  @relation("MediationCounterpartySupport", fields: [counterpartySupportId], references: [id])
+  createdAt             DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt             DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt             DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("mediaciones")
+}
+
+model CaseParticipant {
+  id                     Int                  @id @default(autoincrement())
+  caseId                 Int?                 @map("caso_id")
+  case                   Case?                @relation(fields: [caseId], references: [id])
+  personId               Int?                 @map("persona_id")
+  person                 Person?              @relation(fields: [personId], references: [id])
+  popularOrganizationId  Int?                 @map("org_popular_id")
+  popularOrganization    PopularOrganization? @relation(fields: [popularOrganizationId], references: [id])
+  createdAt              DateTime?            @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt              DateTime?            @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt              DateTime?            @map("eliminado_en") @db.Timestamptz(6)
+
+  @@unique([caseId, personId])
+  @@map("participantes_caso")
+}
+
+model CgrRecord {
+  id            Int       @id @default(autoincrement())
+  caseId        Int?      @map("caso_id")
+  case          Case?     @relation(fields: [caseId], references: [id])
+  hasCompetence Boolean   @default(false) @map("tiene_competencia")
+  assumesCase   Boolean   @default(false) @map("asume_caso")
+  createdAt     DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt     DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt     DateTime? @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("registros_cgr")
+}
+
+// -----------------------------------------------------------------------------
+// NOTIFICACIONES Y AUDITORÍA — Fase 6
+// -----------------------------------------------------------------------------
+
+model Notification {
+  id                  Int                     @id @default(autoincrement())
+  caseId              Int?                    @map("caso_id")
+  case                Case?                   @relation(fields: [caseId], references: [id])
+  type                String                  @default("REMISION") @map("tipo") @db.VarChar(50)
+  message             String                  @map("mensaje") @db.Text
+  isRead              Boolean                 @default(false) @map("leida")
+
+  recipientUserId     String?                 @map("usuario_destino_id") @db.Uuid
+  recipientUser       User?                   @relation("NotificationRecipient", fields: [recipientUserId], references: [id])
+
+  actionUserId        String?                 @map("usuario_accion_id") @db.Uuid
+  actionUser          User?                   @relation("NotificationActor", fields: [actionUserId], references: [id])
+
+  actionRoleId        Int?                    @map("rol_accion_id")
+  actionRole          Role?                   @relation(fields: [actionRoleId], references: [id])
+
+  caseAuthorUserId    String?                 @map("caso_autor_id") @db.Uuid
+  caseAuthorUser      User?                   @relation("NotificationCaseAuthor", fields: [caseAuthorUserId], references: [id])
+
+  originDirectionId   Int?                    @map("direccion_origen_id")
+  originDirection     AdministrativeDirection? @relation(fields: [originDirectionId], references: [id])
+
+  createdAt           DateTime?               @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt           DateTime?               @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt           DateTime?               @map("eliminado_en") @db.Timestamptz(6)
+
+  @@map("notificaciones")
+}
+
+model AuditLog {
+  id        Int       @id @default(autoincrement())
+  userId    String?   @map("usuario_id") @db.Uuid
+  user      User?     @relation(fields: [userId], references: [id])
+  action    String    @map("accion") @db.Text
+  date      DateTime  @map("fecha") @db.Date
+  time      String?   @map("hora") @db.VarChar(11)
+  createdAt DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+
+  @@map("auditoria")
+}
+
+// -----------------------------------------------------------------------------
+// CORREOS ENVIADOS — Fase 7
+// -----------------------------------------------------------------------------
+
+model SentEmail {
+  id           Int       @id @default(autoincrement())
+  toAddress    String    @map("destinatario") @db.VarChar(255)
+  subject      String    @map("asunto") @db.VarChar(255)
+  reason       String    @map("motivo") @db.VarChar(50)
+  status       String    @default("sent") @map("estado") @db.VarChar(20)
+  caseId       Int?      @map("caso_id")
+  case         Case?     @relation(fields: [caseId], references: [id])
+  userId       String?   @map("usuario_id") @db.Uuid
+  user         User?     @relation(fields: [userId], references: [id])
+  errorMessage String?   @map("mensaje_error") @db.Text
+  sentAt       DateTime? @map("enviado_en") @db.Timestamptz(6)
+  createdAt    DateTime? @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt    DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+
+  @@map("correos_enviados")
+}
+
+// -----------------------------------------------------------------------------
+// TICKETS / COLAS — Fase 8
+// -----------------------------------------------------------------------------
+
+model TicketCounter {
+  id              Int            @id @default(autoincrement())
+  officeId        Int            @map("oficina_id")
+  office          Office         @relation(fields: [officeId], references: [id])
+  attentionTypeId Int?           @map("tipo_atencion_id")
+  attentionType   AttentionType? @relation(fields: [attentionTypeId], references: [id])
+  prefix          String         @map("prefijo") @db.VarChar(5)
+  currentNumber   Int            @default(0) @map("numero_actual")
+  lastResetDate   DateTime?      @map("ultimo_reinicio") @db.Date
+  createdAt       DateTime?      @default(now()) @map("creado_en") @db.Timestamptz(6)
+  updatedAt       DateTime?      @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+
+  @@unique([officeId, attentionTypeId])
+  @@map("contadores_turnos")
+}
+
+model Ticket {
+  id              Int            @id @default(autoincrement())
+  ticketNumber    String         @unique @map("numero_turno") @db.VarChar(20)
+  status          String         @default("CREATED") @map("estatus") @db.VarChar(20)
+
+  officeId        Int?           @map("oficina_id")
+  office          Office?        @relation(fields: [officeId], references: [id])
+  attentionTypeId Int?           @map("tipo_atencion_id")
+  attentionType   AttentionType? @relation(fields: [attentionTypeId], references: [id])
+
+  userId          String?        @map("usuario_id") @db.Uuid
+  user            User?          @relation(fields: [userId], references: [id])
+
+  personId        Int?           @map("persona_id")
+  person          Person?        @relation(fields: [personId], references: [id])
+
+  caseId          Int?           @unique @map("caso_id")
+  case            Case?          @relation(fields: [caseId], references: [id])
+
+  deskNumber      String?        @map("numero_escritorio") @db.VarChar(10)
+  serviceType     String?        @map("tipo_servicio") @db.VarChar(30)
+  notes           String?        @map("notas") @db.Text
+  createdAt       DateTime?      @default(now()) @map("creado_en") @db.Timestamptz(6)
+  calledAt        DateTime?      @map("llamado_en") @db.Timestamptz(6)
+  startedAt       DateTime?      @map("iniciado_en") @db.Timestamptz(6)
+  finishedAt      DateTime?      @map("finalizado_en") @db.Timestamptz(6)
+  updatedAt       DateTime?      @updatedAt @map("actualizado_en") @db.Timestamptz(6)
+  deletedAt       DateTime?      @map("eliminado_en") @db.Timestamptz(6)
+
+  @@index([officeId, status])
+  @@index([userId, status])
+  @@map("turnos")
 }

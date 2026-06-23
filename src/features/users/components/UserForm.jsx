@@ -1,11 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import { CustomFormField } from "@/components/shared/form/CustomFormField";
 import { CustomFormSelect } from "@/components/shared/form/CustomFormSelect";
 import { CustomFormCheckbox } from "@/components/shared/form/CustomFormCheckbox";
+import { AsyncSelect } from "@/components/shared/form/AsyncSelect";
 import { useUserForm } from "../hooks/use-user-form";
 import { USER_CONFIG } from "../config/user.constants";
 
@@ -39,6 +40,30 @@ export function UserForm({ user, onSuccess }) {
                     key={field.name}
                     {...commonProps}
                     description={typeof field.description === 'function' ? field.description(form.watch(field.name)) : field.description}
+                  />
+                );
+              }
+              if (field.component === "asyncSelect") {
+                return (
+                  <FormField
+                    key={field.name}
+                    control={form.control}
+                    name={field.name}
+                    render={({ field: controllerField }) => (
+                      <FormItem>
+                        <FormLabel>{field.label}</FormLabel>
+                        <AsyncSelect
+                          value={controllerField.value}
+                          onChange={(val) => controllerField.onChange(val)}
+                          fetcher={field.loadOptions}
+                          getLabel={field.getOptionLabel}
+                          getValue={field.getOptionValue}
+                          placeholder={field.placeholder}
+                          emptyMessage="No se encontraron resultados."
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 );
               }

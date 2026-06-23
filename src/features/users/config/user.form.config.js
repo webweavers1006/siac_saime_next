@@ -1,4 +1,7 @@
 import { USER_CONFIG } from "./user.constants";
+import { getAdministrativeDirectionsForSelectAction } from "@/features/administrative-directions/actions/administrative-direction.select.action";
+import { getAttentionChannelsForSelectAction } from "@/features/attention-channels/actions/attention-channel.select.action";
+import { getOfficesForSelectAction } from "@/features/offices/actions/offices.select.action";
 
 /**
  * Generates default values for the user form.
@@ -13,6 +16,9 @@ export const getUserDefaultValues = (user) => ({
   roleId: user?.roleId ? user.roleId.toString() : "",
   email: user?.email || "",
   password: "",
+  administrativeDirectionId: user?.administrativeDirectionId || null,
+  attentionChannelId: user?.attentionChannelId || null,
+  officeId: user?.officeId || null,
   isActive: user?.isActive ?? true,
 });
 
@@ -54,6 +60,39 @@ export const getUserFormConfig = (roles = [], user = null) => {
         label: FORM.FIELDS.STATUS,
         component: "checkbox",
         description: (val) => val ? FORM.DESCRIPTIONS.ACTIVE : FORM.DESCRIPTIONS.INACTIVE
+      },
+    ],
+    // Row 5: Direction & Office
+    [
+      {
+        name: "administrativeDirectionId",
+        label: FORM.FIELDS.DIRECTION,
+        placeholder: FORM.PLACEHOLDERS.SELECT_DIRECTION,
+        component: "asyncSelect",
+        loadOptions: async (search) => getAdministrativeDirectionsForSelectAction({ searchTerm: search }),
+        getOptionLabel: (opt) => opt.label,
+        getOptionValue: (opt) => opt.value,
+      },
+      {
+        name: "officeId",
+        label: FORM.FIELDS.OFFICE,
+        placeholder: "Seleccionar oficina...",
+        component: "asyncSelect",
+        loadOptions: async (search) => getOfficesForSelectAction({ searchTerm: search }),
+        getOptionLabel: (opt) => opt.label,
+        getOptionValue: (opt) => opt.value,
+      },
+    ],
+    // Row 6: Channel
+    [
+      {
+        name: "attentionChannelId",
+        label: FORM.FIELDS.ATTENTION_CHANNEL,
+        placeholder: FORM.PLACEHOLDERS.SELECT_ATTENTION_CHANNEL,
+        component: "asyncSelect",
+        loadOptions: async (search) => getAttentionChannelsForSelectAction({ searchTerm: search }),
+        getOptionLabel: (opt) => opt.label,
+        getOptionValue: (opt) => opt.value,
       },
     ],
   ].filter(row => row.length > 0);

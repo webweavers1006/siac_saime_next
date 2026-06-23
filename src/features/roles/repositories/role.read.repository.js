@@ -57,7 +57,7 @@ export async function getRolesPaginated({ page, pageSize, searchTerm, sortKey, s
     }),
   };
 
-  const [totalCount, rawRoles] = await prisma.$transaction([
+  const [totalCount, rawRoles] = await Promise.all([
     prisma.role.count({ where }),
     prisma.role.findMany({
       where,

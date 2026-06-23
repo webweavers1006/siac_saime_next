@@ -17,8 +17,13 @@ export function useRoleTableDialogs() {
   const handleEdit = (role) => {
     startFetching(async () => {
       try {
-        const fullRole = await getRoleDetailsAction(role.id);
-        setEditingRole(fullRole);
+        const result = await getRoleDetailsAction(role.id);
+        // createProtectedFunction returns raw object on success, or { success: false } on error
+        if (!result || result.success === false) {
+          toast.error(result?.error || "No se pudieron cargar los detalles del rol");
+          return;
+        }
+        setEditingRole(result);
         setOpen(true);
       } catch (error) {
         logger.error("Error fetching role details", { error: error.message, roleId: role.id });

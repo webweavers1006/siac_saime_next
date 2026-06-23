@@ -18,17 +18,42 @@ export const userMapper = {
       email: entity.email,
       password: entity.password,
       roleId: entity.roleId,
+      caseAreaId: entity.caseAreaId,
+      administrativeDirectionId: entity.administrativeDirectionId,
+      attentionChannelId: entity.attentionChannelId,
+      officeId: entity.officeId,
       // Computado: activo cuando no está eliminado suavemente
       isActive: entity.deletedAt == null,
       deletedAt: entity.deletedAt,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
 
-      // Relación
+      // Relaciones
       role: entity.role ? {
         id: entity.role.id,
         name: entity.role.name,
         description: entity.role.description,
+      } : null,
+      caseArea: entity.caseArea ? {
+        id: entity.caseArea.id,
+        name: entity.caseArea.name,
+      } : null,
+      administrativeDirection: entity.administrativeDirection ? {
+        id: entity.administrativeDirection.id,
+        name: entity.administrativeDirection.name,
+        caseAreaId: entity.administrativeDirection.caseAreaId,
+        defaultCaseArea: entity.administrativeDirection.defaultCaseArea ? {
+          id: entity.administrativeDirection.defaultCaseArea.id,
+          name: entity.administrativeDirection.defaultCaseArea.name,
+        } : null,
+        allowedAreas: entity.administrativeDirection.directionAreas?.map(da => ({
+          areaId: da.areaId,
+          areaName: da.area?.name,
+        })) || [],
+      } : null,
+      attentionChannel: entity.attentionChannel ? {
+        id: entity.attentionChannel.id,
+        name: entity.attentionChannel.name,
       } : null,
     };
   },
@@ -54,7 +79,34 @@ export const userMapper = {
     if (domain.idCard    !== undefined) entity.idCard    = domain.idCard?.trim();
     if (domain.email     !== undefined) entity.email     = domain.email?.trim().toLowerCase();
     if (domain.password  !== undefined) entity.password  = domain.password;
-    if (domain.roleId    !== undefined) entity.roleId    = Number(domain.roleId);
+    // Use relation "connect" syntax for FK fields to satisfy Prisma's XOR<UserUpdateInput, UserUncheckedUpdateInput>
+    // Passing scalar FK fields (like "roleId") triggers "Unknown argument" errors because Prisma resolves
+    // the XOR to the checked variant (UserUpdateInput), which only accepts relations ("role").
+    if (domain.roleId !== undefined) {
+      entity.role = domain.roleId !== null
+        ? { connect: { id: Number(domain.roleId) } }
+        : { disconnect: true };
+    }
+    if (domain.caseAreaId !== undefined) {
+      entity.caseArea = domain.caseAreaId !== null
+        ? { connect: { id: Number(domain.caseAreaId) } }
+        : { disconnect: true };
+    }
+    if (domain.administrativeDirectionId !== undefined) {
+      entity.administrativeDirection = domain.administrativeDirectionId !== null
+        ? { connect: { id: Number(domain.administrativeDirectionId) } }
+        : { disconnect: true };
+    }
+    if (domain.attentionChannelId !== undefined) {
+      entity.attentionChannel = domain.attentionChannelId !== null
+        ? { connect: { id: Number(domain.attentionChannelId) } }
+        : { disconnect: true };
+    }
+    if (domain.officeId !== undefined) {
+      entity.office = domain.officeId !== null
+        ? { connect: { id: Number(domain.officeId) } }
+        : { disconnect: true };
+    }
     
     // isActive (dominio) → deletedAt (Prisma): true = activo (null), false = soft-delete (ahora)
     if (domain.isActive !== undefined) {

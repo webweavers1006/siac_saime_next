@@ -26,7 +26,8 @@ export async function RolePageContainer({ searchParams }) {
       getAllSystemPermissionsAction(),
     ]);
     rolesData = rolesResult;
-    permissions = permissionsResult;
+    // createProtectedFunction returns raw array on success, or { success: false } on error
+    permissions = Array.isArray(permissionsResult) ? permissionsResult : [];
   } catch (error) {
     logger.error("Error loading roles data:", error);
     return (

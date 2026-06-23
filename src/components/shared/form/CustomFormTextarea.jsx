@@ -33,6 +33,7 @@ export function CustomFormTextarea({
               disabled={disabled}
               className="resize-none"
               {...field}
+              value={field.value ?? ""}
               {...props}
             />
           </FormControl>

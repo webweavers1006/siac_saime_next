@@ -23,11 +23,12 @@ export const createActionsColumn = ({
   permissions,
   labels = {},
   isFetching = false,
+  extraActions = [],
 }) => {
-  const canUpdate = can(permissions.UPDATE);
-  const canDelete = can(permissions.DELETE);
+  const canUpdate = can(permissions?.UPDATE);
+  const canDelete = can(permissions?.DELETE);
 
-  if (!canUpdate && !canDelete) return null;
+  if (!canUpdate && !canDelete && extraActions.length === 0) return null;
 
   const actionLabels = {
     ACTIONS: labels.ACTIONS || ACTIONS.TITLE,
@@ -45,16 +46,19 @@ export const createActionsColumn = ({
           icon: isFetching ? Loader2 : Pencil,
           onClick: () => onEdit(item),
           show: () => canUpdate,
-          // Si está cargando, podemos pasar una clase para animar el icono
           className: isFetching ? "animate-spin" : "",
         },
+        ...extraActions.map((action) => ({
+          ...action,
+          onClick: () => action.onClick(item),
+        })),
         {
           label: actionLabels.DELETE,
           icon: Trash2,
           onClick: () => onDelete(item),
           variant: "destructive",
           show: () => canDelete,
-          divider: canUpdate, // Separador si hubo una acción previa
+          divider: canUpdate || extraActions.length > 0,
         },
       ];
 

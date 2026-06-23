@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
-
 import { cn } from "@/features/shared"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -73,7 +72,6 @@ export function AsyncMultiSelect({
     isMountedRef.current = true
     return () => { isMountedRef.current = false }
   }, [])
-
   const performSearch = React.useCallback(async (term) => {
     const nextQuery = typeof term === "string" ? term.trim() : ""
     const canSearchEmpty = allowEmptyQuery && nextQuery.length === 0
@@ -84,7 +82,6 @@ export function AsyncMultiSelect({
       setOptions(selectedOptions);
       return;
     }
-
     setLoading(true)
     try {
       let results = await fetcher(nextQuery)
@@ -107,20 +104,15 @@ export function AsyncMultiSelect({
       setLoading(false)
     }
   }, [allowEmptyQuery, fetcher, minSearchLength, selectedOptions, getValue])
-
   const handleSearch = useDebouncedCallback(performSearch, 300)
-
   React.useEffect(() => {
     if (!open || !fetchOnOpen || query) return
     handleSearch(initialQuery)
   }, [fetchOnOpen, handleSearch, initialQuery, open, query])
-
   const toggleOption = (option) => {
     const val = getValue(option)
     const isSelected = selectedValues.includes(val)
-    let newValues;
-    let newSelectedOptions;
-    
+    let newValues, newSelectedOptions;
     if (isSelected) {
       newValues = selectedValues.filter(v => v !== val)
       newSelectedOptions = selectedOptions.filter(opt => getValue(opt) !== val)
@@ -128,7 +120,6 @@ export function AsyncMultiSelect({
       newValues = [...selectedValues, val]
       newSelectedOptions = [...selectedOptions, option]
     }
-    
     setSelectedOptions(newSelectedOptions)
     if (onChange) onChange(newValues)
   }

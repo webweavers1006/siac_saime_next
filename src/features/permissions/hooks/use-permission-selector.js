@@ -13,7 +13,8 @@ export function usePermissionSelector({
   onChange, 
   valueType = "id" 
 }) {
-  const { permissions } = usePermissionCatalog();
+  const { permissions: rawPermissions } = usePermissionCatalog();
+  const permissions = Array.isArray(rawPermissions) ? rawPermissions : [];
   const [searchTerm, setSearchTerm] = useState("");
   const [activeModule, setActiveModule] = useState("all");
   

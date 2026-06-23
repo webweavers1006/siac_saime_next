@@ -1,0 +1,6 @@
+[
+  { "id": 1, "name": "Por Llamar" },
+  { "id": 2, "name": "Atendido" },
+  { "id": 3, "name": "No Contesta" },
+  { "id": 4, "name": "Otro" }
+]

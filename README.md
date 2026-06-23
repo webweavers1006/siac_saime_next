@@ -40,9 +40,19 @@ Variables requeridas:
 ### 3. Base de Datos
 
 ```bash
-npx prisma generate
-npx prisma migrate dev --name init
-npx prisma db seed
+pnpm prisma generate
+pnpm prisma migrate dev --name init
+pnpm seed          # o: pnpm prisma db seed
+```
+
+El seed puebla 5 fases: catálogos base, geografía, personas, auth (roles/permisos/admin) y casos de ejemplo. Cada fase puede ejecutarse por separado si solo necesitas resembrar una parte:
+
+```bash
+node prisma/seeds/seed-catalogs.js   # Solo catálogos
+node prisma/seeds/seed-geography.js  # Solo geografía
+node prisma/seeds/seed-persons.js    # Solo personas
+node prisma/seeds/seed-auth.js       # Solo auth
+node prisma/seeds/seed-cases.js      # Solo casos (requiere auth previo)
 ```
 
 ### 4. Iniciar
@@ -108,7 +118,7 @@ Cada feature sigue el patrón de capas:
 - Node.js 20+
 - PostgreSQL 15+
 - pnpm
-- PM2 (instalado globalmente: `npm i -g pm2`)
+- PM2 (instalado globalmente: `pnpm add -g pm2`)
 
 ### 1. Variables de Entorno del Sistema
 
@@ -150,10 +160,10 @@ export DATABASE_URL="postgresql://..."
 pnpm install --prod
 
 # Generar cliente de Prisma
-npx prisma generate
+pnpm prisma generate
 
 # Ejecutar migraciones pendientes
-npx prisma migrate deploy
+pnpm prisma migrate deploy
 
 # Build de Next.js
 pnpm build
@@ -176,6 +186,29 @@ El sistema estará disponible en `http://<ip-del-servidor>:3001`.
 
 Para producción real, coloca un reverse proxy (Nginx, Caddy) con HTTPS delante.
 
+## 🌱 Sistema de Seeds
+
+El seed se organiza en módulos independientes dentro de `prisma/seeds/`:
+
+```
+prisma/seeds/
+├── index.js              # Orquestador principal (5 fases)
+├── seed-catalogs.js      # 14 catálogos base (países, estatus, canales…)
+├── seed-geography.js     # Geografía venezolana (26 estados, 336 municipios, 1135 parroquias)
+├── seed-persons.js       # Personas (terceros + personas de caso)
+├── seed-auth.js          # Roles, 71 permisos, usuario admin
+├── seed-cases.js         # Casos de ejemplo con entidades relacionadas
+├── lib/                  # Logger y cliente Prisma compartidos
+└── data/                 # Constantes de auth (ROLES, PERMISSIONS, ADMIN_USER)
+```
+
+Los datos viven en `prisma/seed-data/` — **28 archivos JSON individuales**, uno por entidad. Nada está hardcodeado en el código.
+
+### Convención de casing en catálogos
+- **Title Case**: statuses, channels, areas, types, reasons, países, geografía
+- **UPPERCASE**: entes adscritos, direcciones administrativas (nombres institucionales)
+- **Mixto (códigos)**: oficinas ("OF016 - Guasdualito")
+
 ## 📜 Scripts Disponibles
 
 | Comando | Descripción |
@@ -186,6 +219,7 @@ Para producción real, coloca un reverse proxy (Nginx, Caddy) con HTTPS delante.
 | `pnpm lint` | Ejecutar ESLint |
 | `pnpm test` | Ejecutar tests (40 tests, 4 suites) |
 | `pnpm test:watch` | Tests en modo watch (desarrollo) |
+| `pnpm seed` | Sembrar base de datos (28 archivos JSON, 5 fases) |
 
 ## 🧪 Testing
 

@@ -1,0 +1,245 @@
+[
+  {
+    "firstName": "CÉSAR EMANUEL",
+    "lastName": "GÓMEZ PORTILLO",
+    "email": "cesargomez@saime.gob.ve",
+    "idCard": "26574012",
+    "password": "26574012.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "NILSY",
+    "lastName": "RODRIGUEZ RAMIREZ",
+    "email": "nilsyrodriguez@saime.gob.ve",
+    "idCard": "11592670",
+    "password": "11592670.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "GEUDY YZARA",
+    "lastName": "GONZALEZ FRANCO",
+    "email": "geudygonzalez@saime.gob.ve",
+    "idCard": "12554674",
+    "password": "12554674.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "HAGGEN AYLEN",
+    "lastName": "MENDOZA INFANTE",
+    "email": "haggenmendoza@saime.gob.ve",
+    "idCard": "14046368",
+    "password": "14046368.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "KARINA",
+    "lastName": "MARTINEZ",
+    "email": "karinamartinez@saime.gob.ve",
+    "idCard": "14450962",
+    "password": "14450962.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "YENNY",
+    "lastName": "SUAREZ CASTELLANO",
+    "email": "yennysuarez@saime.gob.ve",
+    "idCard": "16952702",
+    "password": "16952702.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "KELLY JOHAN",
+    "lastName": "FRANCO CASTILLO",
+    "email": "kellyfranco@saime.gob.ve",
+    "idCard": "18440615",
+    "password": "18440615.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "YOSIBEL MARIANA",
+    "lastName": "CASTRO ARANA",
+    "email": "yosibelcastro@saime.gob.ve",
+    "idCard": "20614507",
+    "password": "20614507.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "ZULAY",
+    "lastName": "MERCADO OSPINO",
+    "email": "zulaymercado@saime.gob.ve",
+    "idCard": "25280467",
+    "password": "25280467.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "GERONIMA DEL CARMEN",
+    "lastName": "VILLEGAS",
+    "email": "geronimavillegas@saime.gob.ve",
+    "idCard": "5782127",
+    "password": "5782127.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "GLORIA JOSEFINA",
+    "lastName": "GUZMAN OSORIO",
+    "email": "gloriaguzman@saime.gob.ve",
+    "idCard": "6633325",
+    "password": "6633325.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "RUBEN DARIO",
+    "lastName": "MONTOYA",
+    "email": "rubenmontoya@saime.gob.ve",
+    "idCard": "4251539",
+    "password": "4251539.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "YUSMILEIDY",
+    "lastName": "FERNANDEZ ROMERO",
+    "email": "yusmileidyfernandez@saime.gob.ve",
+    "idCard": "26819895",
+    "password": "26819895.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "IVANNA CELESTE",
+    "lastName": "BERROTERAN",
+    "email": "ivannaberroteran@saime.gob.ve",
+    "idCard": "17759740",
+    "password": "17759740.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "ALEXANDER",
+    "lastName": "FUENTES DAVILA",
+    "email": "alexanderfuentes@saime.gob.ve",
+    "idCard": "13636649",
+    "password": "13636649.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "EGLEE ROSARIO",
+    "lastName": "GONZALEZ GARCIA",
+    "email": "egleegonzalez@saime.gob.ve",
+    "idCard": "18889700",
+    "password": "18889700.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "ODALIS LISBETH",
+    "lastName": "BERRIO ACEVEDO",
+    "email": "odalisberrio@saime.gob.ve",
+    "idCard": "16620825",
+    "password": "16620825.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "ABDIEL JESE",
+    "lastName": "SOTO CASTELLANOS",
+    "email": "abdielsoto@saime.gob.ve",
+    "idCard": "24312518",
+    "password": "24312518.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "ZANIS YULIBER",
+    "lastName": "CAMPOS BASTARDO",
+    "email": "zaniscampos@saime.gob.ve",
+    "idCard": "14065903",
+    "password": "14065903.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "FRANCIS LUZ",
+    "lastName": "GONCALVES MEDINA",
+    "email": "francisgoncalves@saime.gob.ve",
+    "idCard": "13888845",
+    "password": "13888845.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "IRAMA DEL VALLE",
+    "lastName": "ALVAREZ RAMIREZ",
+    "email": "iramaalvarez@saime.gob.ve",
+    "idCard": "19958933",
+    "password": "19958933.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "DAMIAN DAVID",
+    "lastName": "MORA TORO",
+    "email": "damianmora@saime.gob.ve",
+    "idCard": "29529378",
+    "password": "29529378.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "YUSMARY CAROLINA",
+    "lastName": "CORCEGA ALVAREZ",
+    "email": "yusmarycorcega@saime.gob.ve",
+    "idCard": "18836163",
+    "password": "18836163.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "MANUEL ALFONSO",
+    "lastName": "COLMENARES LLAMAS",
+    "email": "manuelcolmenares@saime.gob.ve",
+    "idCard": "29731092",
+    "password": "29731092.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "MIRLEY NATASHA",
+    "lastName": "ECHARRY PESTANA",
+    "email": "mirleyecharry@saime.gob.ve",
+    "idCard": "29595942",
+    "password": "29595942.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "JOYNER JESÚS",
+    "lastName": "SARMIENTO MEDINA",
+    "email": "joynersarmiento@saime.gob.ve",
+    "idCard": "26272602",
+    "password": "26272602.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  },
+  {
+    "firstName": "ELY SAUL",
+    "lastName": "CHIRIVELLA ABACHE",
+    "email": "elychirivella@saime.gob.ve",
+    "idCard": "27038431",
+    "password": "27038431.",
+    "roleName": "OPERADOR",
+    "attentionChannelId": 1
+  }
+]

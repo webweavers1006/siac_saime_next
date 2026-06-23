@@ -107,6 +107,65 @@
 - Componentes UI en **PascalCase** (ej. `UserTable.jsx`).
 - Hooks en **hyphen-case** (ej. `use-user-form.js`).
 
+### Servicios de Integración Cross-Feature (`.integration.service.js`)
+- Cuando un feature A necesita consumir lógica de otro feature B, se crea un archivo `[feature].integration.service.js` **en el feature dueño de la lógica** (B).
+- El feature A importa **una sola función** de ese servicio — cero fugas de implementación.
+- El servicio de integración expone una API limpia que oculta los detalles internos (repositories, mappers, PDF generation, etc.).
+- **Siempre fire-and-forget**: el caller usa `.catch()` para no bloquear su operación principal.
+- **Ejemplo**: `case-sheets/services/case-sheet.integration.service.js` → `attachPlanillaToEmail(caseId)` genera el PDF y devuelve el attachment listo para nodemailer. Lo consume `case.write.service.js`.
+
+### Feature `case-sheets/` — Planillas PDF por Caso
+- **Sin página propia**. Se accede desde: (1) columna acciones en tabla de casos, (2) toolbar en detalle de caso.
+- **2 formatos de plantilla** según `attentionTypeId`: `sheet-generic` (1,2,3,4,6 — Asesoría, Sugerencia, Queja, Reclamo, Petición), `sheet-denuncia` (5).
+- Mediación SAPI (id=23) **descartada** — modelo `Mediation` no se implementa.
+- **Generación**: on-demand (caso individual vía API route `GET /api/case-sheets?caseId=X`) + batch (vía `generateBatchSheetsAction`, ZIP de PDFs).
+- **Auto-attach en email**: al crear un caso con `attentionType.sendEmail = true`, se adjunta la planilla PDF automáticamente vía `case-sheet.integration.service.js`.
+- **Librería PDF**: `jspdf` server-side. Cintillo SAIME en `public/img/cintillo.jpg`.
+- **Permiso**: `case_sheets:generate`.
+- Los templates deben mantener consistencia visual entre sí: mismos helpers (`sectionHeader`, `underlinedField`, `drawCheckbox`), mismas dimensiones de campos (NOMBRES 130mm + CÉDULA 60mm, municipio/parroquia/teléfono en tercios), mismas firmas (FECHA + FIRMA DEL SOLICITANTE centradas con líneas).
+
+### Select Actions — Filtros por Entidad Padre (Obligatorio)
+
+Toda `[feature].select.action.js` debe exponer parámetros opcionales de filtro por la FK padre, para permitir dropdowns encadenados (ej: área → motivo, estado → municipio).
+
+**Patrón estándar:**
+
+```js
+// Acción — acepta parentId opcional
+export async function getXxxForSelectAction({ searchTerm, parentId } = {}) {
+  const result = await xxxReadRepository.findMany({
+    searchTerm: searchTerm || "",
+    parentId: parentId || undefined,   // ← opcional, sin romper backward compat
+    // ...
+  });
+  return result.items.map(item => ({ label: item.name, value: item.id }));
+}
+```
+
+```js
+// Repositorio — filtra solo si se pasa el parámetro
+const where = {
+  ...(searchTerm && { name: { contains: searchTerm, mode: "insensitive" } }),
+  ...(parentId && { parentFk: Number(parentId) }),  // ← filtro condicional
+  deletedAt: null,
+};
+```
+
+- **Parámetro siempre opcional**: si no se pasa, carga todos (compatible hacia atrás).
+- **Nombre del parámetro**: usar el nombre de la FK en camelCase tal cual está en el schema Prisma (ej: `caseAreaId`, `stateId`, `municipalityId`).
+- **JSDoc obligatorio**: documentar `@param {number} [options.parentId]` en cada acción.
+
+**Jerarquías cubiertas:**
+
+| Acción | Parámetro padre |
+|---|---|
+| `getStatesForSelectAction` | `countryId` |
+| `getMunicipalitiesForSelectAction` | `stateId` |
+| `getParishesForSelectAction` | `municipalityId` |
+| `getOfficesForSelectAction` | `stateId` |
+| `getReasonsForSelectAction` | `caseAreaId` |
+| `getAttentionTypeDetailsForSelectAction` | `attentionTypeId` |
+
 ---
 
 ## 4. 🧱 Database
@@ -242,19 +301,19 @@
 ## 8. 🧭 Navegación y Rutas
 
 ### Sidebar (Configuración Unificada)
-- Toda la configuración del sidebar reside en **un solo archivo**: `src/features/shared/config/navigation/sidebar.constants.js`.
-- Contiene tanto `UI.LABELS` (textos) como `NAV.items` (estructura de navegación con íconos, rutas y permisos).
+- Toda la configuración de navegación (sidebar + rutas) reside en **un solo archivo**: `src/features/shared/config/navigation/navigation.config.js`.
+- Contiene `SIDEBAR_CONFIG.UI.LABELS` (textos), `SIDEBAR_CONFIG.NAV.items` (estructura de navegación con íconos, rutas y permisos) y `ROUTES` (rutas centralizadas).
 - El componente `SidebarNav` consume `SIDEBAR_CONFIG.NAV.items` para renderizar la navegación filtrando por permisos.
 
 ### Rutas Centralizadas
-- `src/features/shared/config/navigation/routes.js` centraliza todas las rutas del panel admin.
+- `src/features/shared/config/navigation/navigation.config.js` centraliza todas las rutas del panel admin en el objeto `ROUTES`.
 - Cada feature exporta su `PATH`, `TITLE` y `PERMISSIONS` desde su `[feature].constants.js`.
-- `routes.js` importa esos datos y los ensambla en el objeto `ROUTES`.
+- `navigation.config.js` importa esos datos y los ensambla en `ROUTES`.
 
 ### Auto-Registro de Módulos (Pattern)
 - Al crear un nuevo feature, debes:
-  1. Agregar su ruta en `shared/config/navigation/routes.js` (una línea).
-  2. Agregar su nav item en `shared/config/navigation/sidebar.constants.js` → `NAV.items` (una entrada).
+  1. Agregar su ruta en `shared/config/navigation/navigation.config.js` → `ROUTES.ADMIN` (una línea).
+  2. Agregar su nav item en `shared/config/navigation/navigation.config.js` → `SIDEBAR_CONFIG.NAV.items` (una entrada).
   3. Crear la page en `src/app/(root)/admin/[feature]/page.jsx` (thin page → delega al container).
 
 ### proxy.js (Next.js 16+)
@@ -284,7 +343,7 @@
 ```
 config/
 ├── app/          # site.config.js, theme.config.js, animations.config.js
-├── navigation/   # routes.js, sidebar.constants.js
+├── navigation/   # navigation.config.js (rutas + sidebar unificados)
 ├── pages/        # dashboard.constants.js
 └── shared.constants.js
 ```

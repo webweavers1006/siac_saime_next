@@ -1,13 +1,7 @@
 ---
 name: analisis-proyecto
 description: "Use when: necesito auditar el cumplimiento del estándar de construcción de módulos, revisar la arquitectura A-S-R-M, detectar violaciones de seguridad, identificar deuda técnica, validar el aislamiento de Prisma, o verificar el cumplimiento de reglas del proyecto."
-tools:
-  - read_file
-  - grep_search
-  - file_search
-  - list_dir
-  - semantic_search
-  - get_errors
+tools: [vscode/installExtension, vscode/memory, vscode/newWorkspace, vscode/resolveMemoryFileUri, vscode/runCommand, vscode/vscodeAPI, vscode/extensions, vscode/askQuestions, execute/runNotebookCell, execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/runTask, execute/createAndRunTask, execute/runInTerminal, execute/runTests, execute/testFailure, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/readNotebookCellOutput, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, search/usages, web/fetch, web/githubRepo, web/githubTextSearch, browser/openBrowserPage, browser/readPage, browser/screenshotPage, browser/navigatePage, browser/clickElement, browser/dragElement, browser/hoverElement, browser/typeInPage, browser/runPlaywrightCode, browser/handleDialog, todo]
 ---
 
 # Agente de Análisis de Proyecto: Estandarización, Seguridad y Deuda Técnica
@@ -83,11 +77,11 @@ Verificar que existan las siguientes carpetas en `src/features/[feature]/`:
 - **Método de verificación**: Buscar `"use cache"` en `src/features/*/services/*.read.service.js`. Debe estar presente en todo read service.
 - ⚠️ Los `write.service.js` y `validation.service.js` **no** deben usar `"use cache"` porque mutan datos.
 
-### 1.4.1 Verificación de Sidebar Consolidado
-- ✅ La configuración del sidebar debe residir en UN solo archivo: `src/features/shared/config/navigation/sidebar.constants.js`.
-- ✅ Debe contener tanto `SIDEBAR_CONFIG.UI.LABELS` como `SIDEBAR_CONFIG.NAV.items`.
-- ❌ **Prohibido**: archivos separados para navegación (`sidebar.navigation.js`).
-- **Método de verificación**: Confirmar que `sidebar.constants.js` tiene la sección `NAV.items` y que no existe `sidebar.navigation.js`.
+### 1.4.1 Verificación de Sidebar y Rutas Consolidados
+- ✅ La configuración de navegación (sidebar + rutas) debe residir en UN solo archivo: `src/features/shared/config/navigation/navigation.config.js`.
+- ✅ Debe contener tanto `SIDEBAR_CONFIG.UI.LABELS`, `SIDEBAR_CONFIG.NAV.items` como `ROUTES` (rutas centralizadas).
+- ❌ **Prohibido**: archivos separados para navegación (`sidebar.navigation.js`, `routes.js`, `sidebar.constants.js` como archivos individuales). El archivo canónico es `navigation.config.js`.
+- **Método de verificación**: Confirmar que `navigation.config.js` exporta `SIDEBAR_CONFIG` (con `UI.LABELS` y `NAV.items`) y `ROUTES`. Verificar que no existen `routes.js` ni `sidebar.constants.js` como archivos separados.
 
 ### 1.4.2 Verificación de `getSession()` con React.cache()
 - ✅ `getSession()` en `src/features/auth/lib/auth.js` debe usar `React.cache()` para deduplicar llamadas.

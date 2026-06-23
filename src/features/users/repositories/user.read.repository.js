@@ -32,14 +32,19 @@ export async function findUsersPaginated({ page, pageSize, searchTerm, status, s
     }),
   };
 
-  const [totalCount, rawUsers] = await prisma.$transaction([
+  const [totalCount, rawUsers] = await Promise.all([
     prisma.user.count({ where }),
     prisma.user.findMany({
       where,
       skip,
       take: pageSize,
       orderBy,
-      include: { role: true },
+      include: {
+        role: true,
+        caseArea: true,
+        administrativeDirection: true,
+        attentionChannel: true,
+      },
     }),
   ]);
 
@@ -58,9 +63,48 @@ export async function findUsersPaginated({ page, pageSize, searchTerm, status, s
 export async function findUserById(id) {
   const rawUser = await prisma.user.findUnique({
     where: { id },
-    include: { role: true },
+    include: {
+        role: true,
+        caseArea: true,
+        administrativeDirection: {
+          include: {
+            defaultCaseArea: true,
+            directionAreas: { include: { area: true } },
+          },
+        },
+        attentionChannel: true,
+      },
   });
   return userMapper.toDomain(rawUser);
+}
+
+/**
+ * Finds the officeId for a given user (lightweight, no includes).
+ * @param {number} id
+ * @returns {Promise<{ officeId: number|null }|null>}
+ */
+export async function findUserOfficeById(id) {
+  return await prisma.user.findUnique({
+    where: { id },
+    select: { officeId: true },
+  });
+}
+
+/**
+ * Finds all non-deleted users belonging to a given administrative direction.
+ * Used for notification routing when a case is forwarded.
+ * @param {number} administrativeDirectionId
+ * @returns {Promise<Array<{ id: string }>>} Minimal user objects.
+ */
+export async function findUsersByAdministrativeDirectionId(administrativeDirectionId) {
+  const rawUsers = await prisma.user.findMany({
+    where: {
+      administrativeDirectionId: Number(administrativeDirectionId),
+      deletedAt: null,
+    },
+    select: { id: true },
+  });
+  return rawUsers;
 }
 
 /**

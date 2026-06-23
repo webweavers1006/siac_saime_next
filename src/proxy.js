@@ -7,11 +7,15 @@ const LOGIN_PATH = ROUTES.AUTH.LOGIN.path
 const DASHBOARD_PATH = ROUTES.DASHBOARD.path
 
 // Public routes — no session required
-const PUBLIC_PATHS = [LOGIN_PATH]
+const PUBLIC_PATHS = [LOGIN_PATH, '/turnos', '/tomar-turno']
 
 // Protected prefix — any path starting with this requires a session
 // (fine-grained permission checks happen server-side via checkPageAccess)
 const PROTECTED_PREFIX = DASHBOARD_PATH
+
+function isPublicPath(path) {
+  return PUBLIC_PATHS.some(p => path === p || path.startsWith(p + '/') || path.startsWith(p + '?'))
+}
 
 export async function proxy(req) {
   const path = req.nextUrl.pathname
@@ -21,7 +25,7 @@ export async function proxy(req) {
     return NextResponse.next()
   }
 
-  const isProtected = path.startsWith(PROTECTED_PREFIX) && !PUBLIC_PATHS.includes(path)
+  const isProtected = path.startsWith(PROTECTED_PREFIX) && !isPublicPath(path)
   const isLoginPage = path === LOGIN_PATH
 
   const cookie = req.cookies.get('session')?.value

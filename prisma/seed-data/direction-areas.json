@@ -1,0 +1,20 @@
+[
+  { "directionId": 1, "areaId": 2 },
+  { "directionId": 1, "areaId": 3 },
+  { "directionId": 1, "areaId": 4 },
+  { "directionId": 1, "areaId": 5 },
+  { "directionId": 1, "areaId": 6 },
+  { "directionId": 1, "areaId": 7 },
+  { "directionId": 5, "areaId": 6 },
+  { "directionId": 6, "areaId": 3 },
+  { "directionId": 6, "areaId": 4 },
+  { "directionId": 6, "areaId": 5 },
+  { "directionId": 9, "areaId": 2 },
+  { "directionId": 9, "areaId": 3 },
+  { "directionId": 9, "areaId": 4 },
+  { "directionId": 9, "areaId": 5 },
+  { "directionId": 9, "areaId": 6 },
+  { "directionId": 9, "areaId": 7 },
+  { "directionId": 3, "areaId": 1 },
+  { "directionId": 3, "areaId": 2 }
+]

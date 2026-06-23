@@ -11,7 +11,7 @@ export const metadata = {
 };
 
 export default async function RolesPage({ searchParams }) {
-  const { authorized } = await checkPageAccess(ROLE_CONFIG.PERMISSIONS.READ);
+  const { authorized } = await checkPageAccess(ROLE_CONFIG.PERMISSIONS.VIEW);
 
   if (!authorized) {
     return <AccessDenied />;

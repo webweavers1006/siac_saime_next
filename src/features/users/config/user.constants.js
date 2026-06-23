@@ -4,11 +4,12 @@
 
 export const USER_CONFIG = {
   // Rutas del módulo
-  PATH: '/admin/usuarios',
+  PATH: '/admin/users',
   TITLE: 'Usuarios',
 
   // Permisos requeridos
   PERMISSIONS: {
+    VIEW: 'users:view',
     READ: 'users:read',
     READ_ALL: 'users:read_all',
     WRITE: 'users:create',
@@ -49,6 +50,9 @@ export const USER_CONFIG = {
           EMAIL: 'Email',
           PASSWORD: 'Contraseña',
           ROLE: 'Rol',
+          DIRECTION: 'Dirección',
+          ATTENTION_CHANNEL: 'Canal de Atención',
+          OFFICE: 'Oficina',
           STATUS: 'Estado del Usuario',
         },
         PLACEHOLDERS: {
@@ -59,6 +63,8 @@ export const USER_CONFIG = {
           PASSWORD: 'Mínimo 6 caracteres',
           PASSWORD_EDIT: 'Dejar en blanco para mantener',
           SELECT_ROLE: 'Seleccionar Rol',
+          SELECT_DIRECTION: 'Seleccionar dirección...',
+          SELECT_ATTENTION_CHANNEL: 'Seleccionar canal...',
         },
         DESCRIPTIONS: {
           ACTIVE: 'Usuario activo en el sistema',

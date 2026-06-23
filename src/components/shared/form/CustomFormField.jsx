@@ -35,6 +35,7 @@ export function CustomFormField({
               placeholder={placeholder}
               disabled={disabled}
               {...field}
+              value={field.value ?? ""}
               onBlur={(e) => {
                 field.onBlur(e)
                 customOnBlur?.(e)

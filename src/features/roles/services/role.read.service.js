@@ -1,6 +1,7 @@
 import {
   getRolesPaginated,
   getAllRoles,
+  getRoleByName,
   getRoleByIdWithPermissions
 } from "../repositories/role.read.repository";
 import { ROLE_CONFIG } from "../config/role.constants";
@@ -58,5 +59,20 @@ export async function fetchAllRolesList() {
   } catch (error) {
     logger.error("Error fetching all roles", { error: error.message });
     return [];
+  }
+}
+
+/**
+ * Busca un rol por su nombre exacto.
+ * @param {string} name - Nombre del rol a buscar.
+ * @param {number} [excludeId] - ID a excluir de la búsqueda (para validación de unicidad en updates).
+ * @returns {Promise<Object|null>} Rol encontrado o null.
+ */
+export async function fetchRoleByName(name, excludeId = null) {
+  try {
+    return await getRoleByName(name, excludeId);
+  } catch (error) {
+    logger.error("Error fetching role by name", { error: error.message, roleName: name });
+    return null;
   }
 }

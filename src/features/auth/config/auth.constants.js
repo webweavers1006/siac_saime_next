@@ -43,7 +43,7 @@ export const AUTH_CONFIG = {
   UI: {
     LABELS: {
       HEADER: {
-        TITLE: 'SISTEMA DE ADMINISTRACIÓN',
+        TITLE: 'SAIME - Sistema de Atención al Ciudadano',
       },
       CARD: {
         TITLE: 'Bienvenido',

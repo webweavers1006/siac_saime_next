@@ -5,6 +5,7 @@ import { loginSchema } from '../schemas/login.schema'
 import { authenticateUser, loginUserSession } from '../services/auth.service'
 import { loginRateLimiter } from '../lib/rate-limiter'
 import { AUTH_CONFIG } from '../config/auth.constants'
+import { createAuditEntry } from '@/features/audit-logs/services/audit-log.write.service'
 
 /**
  * Extracts the client IP address from request headers.
@@ -55,6 +56,12 @@ export async function loginAction(prevState, formData) {
 
   // 4. Create session
   await loginUserSession(authResult.user);
+
+  // 5. Audit log — fire and forget
+  createAuditEntry({
+    userId: authResult.user.id,
+    action: 'Inicio de sesión exitoso',
+  });
 
   return { success: true }
 }

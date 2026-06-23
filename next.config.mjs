@@ -27,9 +27,9 @@ const nextConfig = {
               // Agrega 'unsafe-eval' solo si NO es producción
               `script-src 'self' 'unsafe-inline' ${!isProduction ? "'unsafe-eval'" : ''}`,
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob:",
+              "img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com",
               "font-src 'self' data:",
-              "connect-src 'self'",
+              "connect-src 'self' https://tile.openstreetmap.org https://*.tile.openstreetmap.org",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

@@ -1,5 +1,5 @@
 import { findUsersPaginated } from "../repositories/user.read.repository";
-import { getAllRoles } from "@/features/roles/repositories/role.read.repository";
+import { fetchAllRolesList } from "@/features/roles/services/role.read.service";
 import { USER_CONFIG } from "../config/user.constants";
 import { logger } from "@/features/shared";
 
@@ -26,7 +26,7 @@ export async function fetchUsersList(
         sortKey,
         sortDirection
       }),
-      getAllRoles()
+      fetchAllRolesList()
     ]);
 
     return {

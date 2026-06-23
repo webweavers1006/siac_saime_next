@@ -10,6 +10,9 @@ export const userSchema = z.object({
   idCard: z.string().min(3, "La cédula es obligatoria"),
   email: z.string().email("Email inválido"),
   roleId: z.coerce.number().min(1, "Debes seleccionar un rol"),
+  administrativeDirectionId: z.any().optional(),
+  attentionChannelId: z.any().optional(),
+  officeId: z.any().optional(),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").optional().or(z.literal('')),
   isActive: z.preprocess(
     (val) => val === 'on' || val === 'true' || val === true,

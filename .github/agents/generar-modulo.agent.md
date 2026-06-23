@@ -1,13 +1,7 @@
 ---
 name: generar-modulo
 description: "Use when: necesito crear un nuevo módulo CRUD completo en src/features/ siguiendo el estándar A-S-R-M, o agregar una entidad faltante a un módulo existente."
-tools:
-  - read_file
-  - grep_search
-  - file_search
-  - list_dir
-  - create_file
-  - replace_string_in_file
+tools: [vscode/installExtension, vscode/memory, vscode/newWorkspace, vscode/resolveMemoryFileUri, vscode/runCommand, vscode/vscodeAPI, vscode/extensions, vscode/askQuestions, execute/runNotebookCell, execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/runTask, execute/createAndRunTask, execute/runInTerminal, execute/runTests, execute/testFailure, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/readNotebookCellOutput, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, search/usages, web/fetch, web/githubRepo, web/githubTextSearch, browser/openBrowserPage, browser/readPage, browser/screenshotPage, browser/navigatePage, browser/clickElement, browser/dragElement, browser/hoverElement, browser/typeInPage, browser/runPlaywrightCode, browser/handleDialog, todo]
 ---
 
 # Agente Generador de Módulos CRUD
@@ -43,16 +37,15 @@ Eres un agente especializado en **crear módulos CRUD completos** para el proyec
    - Crea `lib/rate-limiter.js` usando la factory `createRateLimiter()`.
    - Integra `limiter.checkLimit(ip)` en la acción correspondiente.
    - Ver `src/features/auth/` como referencia.
-14. **Actualiza `routes.js`** en `src/features/shared/config/navigation/routes.js` agregando la ruta del nuevo módulo.
-15. **Actualiza `sidebar.constants.js`** en `src/features/shared/config/navigation/sidebar.constants.js` agregando el item en `NAV.items`.
-16. **Crea el barrel export `index.js`** en la raíz del feature re-exportando la API pública.
+14. **Actualiza `navigation.config.js`** en `src/features/shared/config/navigation/navigation.config.js` agregando la ruta del nuevo módulo en `ROUTES.ADMIN` y el item de navegación en `SIDEBAR_CONFIG.NAV.items` (archivo unificado de rutas + sidebar).
+15. **Crea el barrel export `index.js`** en la raíz del feature re-exportando la API pública.
    - ⚠️ **Solo exportar**: config, constantes, columnas, servicios de lectura.
    - ❌ **Nunca exportar**: `prisma`, acciones server-only, rate limiters, o cualquier cosa con `next/headers`.
-17. **Crea la page** en `src/app/(root)/admin/[feature]/page.jsx` (thin page — solo `checkPageAccess` + renderizar container).
-18. **Crea el PageContainer** en `src/features/[feature]/components/[Feature]PageContainer.jsx` con la lógica de fetch, searchParams y error handling.
-19. **Ejecuta validación post-generación** usando los checks del agente `analisis-proyecto`.
+16. **Crea la page** en `src/app/(root)/admin/[feature]/page.jsx` (thin page — solo `checkPageAccess` + renderizar container).
+17. **Crea el PageContainer** en `src/features/[feature]/components/[Feature]PageContainer.jsx` con la lógica de fetch, searchParams y error handling.
+18. **Ejecuta validación post-generación** usando los checks del agente `analisis-proyecto`.
 
-> **Importante**: Los pasos 14, 15, 16, 17, 18 y 19 son OBLIGATORIOS. Sin ellos el módulo no es navegable ni funcional.
+> **Importante**: Los pasos 14, 15, 16, 17 y 18 son OBLIGATORIOS. Sin ellos el módulo no es navegable ni funcional.
 
 ## 🏗️ Estructura a Generar
 
@@ -1302,9 +1295,9 @@ const items = await prisma.[prismaModel].findMany({
 
 ## 📄 Archivos Adicionales (Ruteo, Sidebar y Page)
 
-### 23. Actualizar `src/features/shared/config/navigation/routes.js`
+### 23. Actualizar `src/features/shared/config/navigation/navigation.config.js`
 
-Agrega el import al inicio del archivo y la ruta dentro de `ROUTES.ADMIN`:
+El archivo `navigation.config.js` unifica rutas y sidebar en un solo lugar. Agrega el import al inicio y actualiza ambas secciones:
 
 **Import (agregar al inicio, en orden alfabético):**
 ```javascript
@@ -1320,12 +1313,7 @@ import { [FEATURE]_CONFIG } from '@/features/[feature]/config/[feature].constant
 },
 ```
 
-> **Nota**: En Admin Starter no existe sección `CATALOGS`. Todos los módulos van dentro de `ROUTES.ADMIN`.
-
-### 24. Actualizar `src/features/shared/config/navigation/sidebar.constants.js`
-
-Agrega el item en el array `SIDEBAR_CONFIG.NAV.items` dentro de la sección "Administración":
-
+**Item en `SIDEBAR_CONFIG.NAV.items` (dentro de la sección "Administración"):**
 ```javascript
 {
   title: ROUTES.ADMIN.[FEATURE_SLUG].title,
@@ -1335,6 +1323,7 @@ Agrega el item en el array `SIDEBAR_CONFIG.NAV.items` dentro de la sección "Adm
 },
 ```
 
+> **Nota**: En Admin Starter no existe sección `CATALOGS`. Todos los módulos van dentro de `ROUTES.ADMIN`.
 > **Iconos**: Usar componentes de `lucide-react`. Elegir uno adecuado (ej: `Tags` para etiquetas, `FileText` para documentos, `CreditCard` para pagos).
 
 ### 25. Crear `src/features/[feature]/index.js` (Barrel Export)
@@ -1403,7 +1392,7 @@ Después de generar todos los archivos, ejecuta estos checks (mismos que usa `an
 4. ✅ Verificar que **todas las acciones usan `createProtectedAction` o `createProtectedFunction`**.
 5. ✅ Verificar que **la page es \"thin\" (≤30 líneas, sin fetch/searchParams/try-catch)** y delega al PageContainer.
 6. ✅ Verificar que **no hay texto en español hardcodeado en JSX** — solo referencias a `[FEATURE]_CONFIG.UI.LABELS`.
-7. ✅ Verificar que **`routes.js` y `sidebar.constants.js` fueron actualizados** correctamente.
+7. ✅ Verificar que **`navigation.config.js` fue actualizado** correctamente (ruta en `ROUTES.ADMIN` + item en `SIDEBAR_CONFIG.NAV.items`).
 8. ✅ Verificar que **el barrel export `index.js` existe y SOLO exporta config/datos** (sin `prisma`, `getSession`, `createProtectedAction`, ni `next/headers`).
 9. ✅ Verificar que **el modelo Prisma tiene `createdAt`, `updatedAt` con `@map` y `deletedAt`**.
 10. ✅ Verificar que **el seed incluye los permisos del módulo** y usa `upsert`.
